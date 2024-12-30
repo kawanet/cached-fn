@@ -1,0 +1,14 @@
+*.cjs
+*.js
+*.tgz
+*~
+.DS_Store
+.Thumbs
+._*
+.idea/modules.xml
+.idea/*.iml
+.vscode/
+node_modules/
+npm-debug.log*
+package-lock.json
+~$*

@@ -1,0 +1,25 @@
+{
+  "exclude": [
+    "build/",
+    "node_modules"
+  ],
+  "include": [
+    "src/",
+    "test/",
+    "types/"
+  ],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": false,
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "noImplicitAny": true,
+    "noImplicitReturns": false,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": false,
+    "skipLibCheck": false,
+    "strictNullChecks": false,
+    "target": "ES2018"
+  }
+}

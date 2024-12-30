@@ -1,0 +1,52 @@
+{
+  "name": "ondemand",
+  "description": "Lightweight, lazy, and simple cache built on demand",
+  "version": "1.0.0",
+  "author": "@kawanet",
+  "bugs": {
+    "url": "https://github.com/kawanet/ondemand/issues"
+  },
+  "contributors": [
+    "kawanet <u-suke@kawa.net>"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "exports": {
+    "types": "./types/ondemand.d.ts",
+    "require": "./src/ondemand.cjs",
+    "import": "./src/ondemand.js"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "src/ondemand.cjs",
+    "src/ondemand.js",
+    "types/ondemand.d.ts"
+  ],
+  "homepage": "https://github.com/kawanet/ondemand",
+  "keywords": [
+    "cache",
+    "caching",
+    "lazy",
+    "memoize"
+  ],
+  "license": "MIT",
+  "main": "./src/ondemand.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kawanet/ondemand.git"
+  },
+  "scripts": {
+    "build": "npm run build-mjs && npm run build-cjs",
+    "build-cjs": "perl -pe 's/^export const /exports./' < src/ondemand.js > src/ondemand.cjs",
+    "build-mjs": "./node_modules/.bin/tsc -p tsconfig.json",
+    "fixpack": "fixpack",
+    "prepack": "npm run build && npm run test",
+    "test": "npm run test-mjs && npm run test-cjs",
+    "test-cjs": "node -e 'if (require(\"./src/ondemand.cjs\").ondemand(()=>1)() !== 1) throw new Error()'",
+    "test-mjs": "node --test test/*.test.js"
+  },
+  "type": "module"
+}

@@ -1,10 +1,10 @@
 import {strict as assert} from "node:assert"
 import {test} from "node:test"
-import {ondemand} from "../src/ondemand.js"
+import {cachedFn} from "../src/cached-fn.js"
 
 test("single argument", async () => {
     let count = 0
-    const fn = ondemand((_a?: string) => ++count)
+    const fn = cachedFn((_a?: string) => ++count)
     assert.equal(fn(), 1)
 
     assert.equal(fn("a"), 2)
@@ -21,7 +21,7 @@ test("single argument", async () => {
 
 test("two arguments", async () => {
     let count = 0
-    const fn = ondemand((_a?: string, _b?: string) => ++count)
+    const fn = cachedFn((_a?: string, _b?: string) => ++count)
     assert.equal(fn(), 1)
 
     assert.equal(fn("a"), 2)
@@ -39,7 +39,7 @@ test("two arguments", async () => {
 
 test("three arguments", async () => {
     let count = 0
-    const fn = ondemand((_a?: string, _b?: string, _c?: string) => ++count)
+    const fn = cachedFn((_a?: string, _b?: string, _c?: string) => ++count)
     assert.equal(fn(), 1)
 
     assert.equal(fn("a"), 2)

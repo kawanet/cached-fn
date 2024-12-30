@@ -48,5 +48,6 @@
     "test-cjs": "node -e 'if (require(\"./src/cached-fn.cjs\").cachedFn(()=>1)() !== 1) throw new Error()'",
     "test-mjs": "node --test test/*.test.js"
   },
-  "type": "module"
+  "type": "module",
+  "types": "./types/cached-fn.d.ts"
 }

@@ -3,8 +3,13 @@
  */
 import type * as declared from "../types/cached-fn.js";
 
+type P = Record<string, [any]>
+type Q = Record<number, P>
+type R = Record<number, Q>
+type S = Record<number, R>
+
 // Storage
-let S: Record<string, Record<string, [any]>> = {};
+let S: S = {};
 
 // Index counter
 let Index = 0;
@@ -12,13 +17,21 @@ let Index = 0;
 // Array.prototype.slice
 const slice = [].slice;
 
-// Cache function
-export const cachedFn = (fn => {
+const cycle: declared.cachedFn["cycle"] = (ms, fn) => {
     const idx = ++Index;
     const fnLen = fn.length;
 
     return function (this: any) {
-        const cache = S[idx] || (S[idx] = {});
+        const slot = +ms && Math.floor(Date.now() / ms);
+
+        let R = S[ms];
+        let Q = R && R[slot];
+        if (!Q) {
+            R = S[ms] = {}
+            Q = R[slot] = {}
+        }
+        const P = Q[idx] || (Q[idx] = {});
+
         const argLen = arguments.length;
         let key: string;
         if (!fnLen && !argLen) {
@@ -28,10 +41,18 @@ export const cachedFn = (fn => {
             if (argLen < fnLen) args.length = fnLen;
             key = JSON.stringify(args);
         }
-        const array = cache[key] || (cache[key] = [fn.apply(this, arguments)]);
+
+        const array = P[key] || (P[key] = [fn.apply(this, arguments)]);
+
         return array[0];
     };
-}) as declared.cachedFn;
+}
 
-// Flush function
+// cachedFn(fn)
+export const cachedFn = (fn => cycle(0, fn)) as declared.cachedFn;
+
+// cachedFn.cycle(ms, fn)
+cachedFn.cycle = cycle;
+
+// cachedFn.flush()
 cachedFn.flush = () => (S = {});

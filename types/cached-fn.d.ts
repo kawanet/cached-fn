@@ -3,17 +3,33 @@
  */
 export interface cachedFn {
     /**
-     * `cachedFn()` generates a caching function with the same signature as the provided function.
-     * - Stores and reuses results to speed up repeated calls with the same arguments.
-     * - Especially beneficial for computationally expensive or resource-intensive functions.
-     * - Uses lazy evaluation by computing results only upon invocation.
+     * `cachedFn(fn)` returns a memoized version of `fn` with unlimited cache duration.
+     *
+     * - Caches and reuses results for identical arguments to avoid repeated computation.
+     * - Ideal for expensive or resource-intensive synchronous functions.
+     * - Lazy: computes and caches the result on the first invocation.
+     * - To invalidate all stored results, call `cachedFn.flush()`.
      */
     <T, U extends any[]>(fn: (...args: U) => T): ((...args: U) => T);
 
     /**
-     * `cachedFn.flush()` clears all caches created by `cachedFn()`.
-     * - Use this method to invalidate outdated results or free up memory.
-     * - Once flushed, the next call to any cached function will recalculate its result.
+     * `cachedFn.cycle(ms, fn)` returns a time-windowed cached version of `fn`.
+     *
+     * - `ms` defines the length of each cache window in milliseconds.
+     * - Results are cached only within the current window slot.
+     * - When a new window starts, the cache is invalidated automatically.
+     */
+    cycle<T, U extends any[]>(ms: number, fn: (...args: U) => T): ((...args: U) => T);
+
+
+    /**
+     * `cachedFn.flush()` clears all caches created by both `cachedFn()` and `cachedFn.cycle()`.
+     *
+     * - Instantly invalidates every stored result, freeing associated memory.
+     * - After clearing, the next call to any cached function will recompute and repopulate its cache.
+     *
+     * @example
+     * process.on("SIGHUP", () => cachedFn.flush());
      */
     flush(): void;
 }

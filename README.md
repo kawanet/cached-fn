@@ -8,10 +8,8 @@ Lightweight, lazy, cached function that runs only once when needed
 ## SYNOPSIS
 
 ```javascript
-import {cachedFn} from "cached-fn";
-
 /**
- * Simple cache system for fetching text
+ * Simple cache system for fetching text (cache never expires)
  */
 const fetchText = cachedFn(async (url) => {
   const res = await fetch(url);
@@ -19,9 +17,18 @@ const fetchText = cachedFn(async (url) => {
 });
 
 /**
- * Singleton pattern
+ * Singleton pattern (cache never expires)
  */
 const getInstance = cachedFn(() => new MyClass());
+
+/**
+ * Time-windowed cache: results are scoped to 5-minute windows
+ * (cache is automatically invalidated every 5 minutes)
+ */
+const fetchJson5m = cachedFn.cycle(5 * 60 * 1000, async (url) => {
+  const res = await fetch(url);
+  return res.json();
+});
 ```
 
 ### Function Usage
@@ -30,6 +37,8 @@ const getInstance = cachedFn(() => new MyClass());
 const text = await fetchText(url);
 
 const instance = getInstance();
+
+const json = await fetchJson5m(url);
 ```
 
 ### Flushing All Cache
@@ -45,7 +54,7 @@ process.on("SIGHUP", () => cachedFn.flush());
 
 ## MIT LICENSE
 
-Copyright (c) 2024 Yusuke Kawasaki
+Copyright (c) 2024-2025 Yusuke Kawasaki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

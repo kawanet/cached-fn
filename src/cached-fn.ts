@@ -3,7 +3,8 @@
  */
 import type * as declared from "../types/cached-fn.js";
 
-type P = Record<string, [any]>
+type O = [unknown]
+type P = Record<string, O>
 type Q = Record<number, P>
 type R = Record<number, Q>
 type S = Record<number, R>
@@ -17,11 +18,13 @@ let Index = 0;
 // Array.prototype.slice
 const slice = [].slice;
 
-const cycle: declared.cachedFn["cycle"] = (ms, fn) => {
+const cycle = ((ms, fn) => {
     const idx = ++Index;
     const fnLen = fn.length;
 
-    return function (this: any) {
+    return function (this: unknown) {
+        // eslint-disable-next-line prefer-rest-params
+        const args = arguments as ArrayLike<unknown> as Parameters<typeof fn>;
         const slot = +ms && Math.floor(Date.now() / ms);
 
         let R = S[ms];
@@ -32,21 +35,21 @@ const cycle: declared.cachedFn["cycle"] = (ms, fn) => {
         }
         const P = Q[idx] || (Q[idx] = {});
 
-        const argLen = arguments.length;
+        const argLen = args.length
         let key: string;
         if (!fnLen && !argLen) {
             key = "[]";
         } else {
-            const args: any[] = slice.call(arguments);
-            if (argLen < fnLen) args.length = fnLen;
-            key = JSON.stringify(args);
+            const array: unknown[] = slice.call(args)
+            if (argLen < fnLen) array.length = fnLen
+            key = JSON.stringify(array)
         }
 
-        const array = P[key] || (P[key] = [fn.apply(this, arguments)]);
+        const O = P[key] || (P[key] = [fn.apply(this, args)] as O);
 
-        return array[0];
+        return O[0];
     };
-}
+}) as declared.cachedFn["cycle"]
 
 // cachedFn(fn)
 export const cachedFn = (fn => cycle(0, fn)) as declared.cachedFn;

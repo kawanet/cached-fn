@@ -10,7 +10,7 @@ export interface cachedFn {
      * - Lazy: computes and caches the result on the first invocation.
      * - To invalidate all stored results, call `cachedFn.flush()`.
      */
-    <T, U extends any[]>(fn: (...args: U) => T): ((...args: U) => T);
+    <T, U extends unknown[]>(fn: (...args: U) => T): ((...args: U) => T);
 
     /**
      * `cachedFn.cycle(ms, fn)` returns a time-windowed cached version of `fn`.
@@ -19,7 +19,7 @@ export interface cachedFn {
      * - Results are cached only within the current window slot.
      * - When a new window starts, the cache is invalidated automatically.
      */
-    cycle<T, U extends any[]>(ms: number, fn: (...args: U) => T): ((...args: U) => T);
+    cycle<T, U extends unknown[]>(ms: number, fn: (...args: U) => T): ((...args: U) => T);
 
 
     /**

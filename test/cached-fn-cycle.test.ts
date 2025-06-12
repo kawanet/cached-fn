@@ -7,7 +7,7 @@ test("cachedFn.cycle()", async () => {
 
     const counter = cachedFn.cycle(20, (_: string) => ++count)
 
-    await new Promise(resolve => setTimeout(resolve, 40 - Date.now() % 30))
+    await new Promise(resolve => setTimeout(resolve, 30 - (Date.now() % 20)))
 
     assert.equal(counter("a"), 1)
     assert.equal(counter("a"), 1)

@@ -5,8 +5,7 @@
 .DS_Store
 .Thumbs
 ._*
-.idea/modules.xml
-.idea/*.iml
+.idea/
 .vscode/
 node_modules/
 npm-debug.log*

@@ -1,9 +1,10 @@
 # cached-fn
 
-[![Node.js CI](https://github.com/kawanet/cached-fn/workflows/Node.js%20CI/badge.svg?branch=main)](https://github.com/kawanet/cached-fn/actions/)
-[![npm version](https://badge.fury.io/js/cached-fn.svg)](https://badge.fury.io/js/cached-fn)
+[![Node.js CI](https://github.com/kawanet/cached-fn/workflows/Node.js%20CI/badge.svg)](https://github.com/kawanet/cached-fn/actions/)
+[![npm version](https://img.shields.io/npm/v/cached-fn)](https://www.npmjs.com/package/cached-fn)
+[![gzip size](https://img.badgesize.io/https://cdn.jsdelivr.net/npm/cached-fn/dist/cached-fn.min.js?compression=gzip)](https://cdn.jsdelivr.net/npm/cached-fn/dist/cached-fn.min.js)
 
-Lightweight, lazy, cached function that runs only once when needed
+Lightweight and lazy cached function with TTL, negative TTL, and item limit controls.
 
 ## SYNOPSIS
 
@@ -12,39 +13,53 @@ Lightweight, lazy, cached function that runs only once when needed
  * Simple cache system for fetching text (cache never expires)
  */
 const fetchText = cachedFn(async (url) => {
-  const res = await fetch(url);
-  return res.text();
-});
+    const res = await fetch(url)
+    return res.text()
+})
 
 /**
  * Singleton pattern (cache never expires)
  */
-const getInstance = cachedFn(() => new MyClass());
+const getInstance = cachedFn(() => new MyClass())
 
 /**
- * Time-windowed cache: results are scoped to 5-minute windows
- * (cache is automatically invalidated every 5 minutes)
+ * Cached fetch for JSON with options:
+ * - cycle: results are scoped to 5-minute windows
+ * - cache is automatically invalidated every 5 minutes
  */
-const fetchJson5m = cachedFn.cycle(5 * 60 * 1000, async (url) => {
-  const res = await fetch(url);
-  return res.json();
-});
+const fetchJson = cachedFn({cycle: 5 * 60 * 1000}, async (url) => {
+    const res = await fetch(url)
+    return res.json()
+})
+
+/**
+ * Cached fetch for ArrayBuffer with options:
+ * - maxItems: up to 100 cache entries
+ * - cache: cache expires after 60 seconds
+ * - negativeCache: failed results cached for 1 second
+ */
+const fetchBuffer = cachedFn({maxItems: 100, cache: 60 * 1000, negativeCache: 1000}, async (url) => {
+    const res = await fetch(url)
+    return res.arrayBuffer()
+})
 ```
 
 ### Function Usage
 
 ```javascript
-const text = await fetchText(url);
+const text = await fetchText(url)
 
-const instance = getInstance();
+const instance = getInstance()
 
-const json = await fetchJson5m(url);
+const json = await fetchJson(url)
+
+const buffer = await fetchBuffer(url)
 ```
 
 ### Flushing All Cache
 
 ```javascript
-process.on("SIGHUP", () => cachedFn.flush());
+process.on("SIGHUP", () => cachedFn.flush())
 ```
 
 ## SEE ALSO

@@ -1,7 +1,7 @@
 {
   "name": "cached-fn",
-  "description": "Lightweight, lazy, cached function that runs only once when needed",
-  "version": "1.1.0",
+  "description": "Lightweight and lazy cached function with TTL, negative TTL, and item limit controls.",
+  "version": "1.2.0",
   "author": "@kawanet",
   "bugs": {
     "url": "https://github.com/kawanet/cached-fn/issues"
@@ -10,20 +10,25 @@
     "kawanet <u-suke@kawa.net>"
   ],
   "devDependencies": {
-    "@types/node": "^24.0.1",
-    "typescript": "^5.8.3"
+    "@types/node": "^24.7.2",
+    "terser": "^5.44.0",
+    "typescript": "^5.9.3"
   },
   "exports": {
-    "types": "./types/cached-fn.d.ts",
-    "require": "./src/cached-fn.cjs",
-    "import": "./src/cached-fn.js"
+    ".": {
+      "require": "./dist/cached-fn.js",
+      "import": {
+        "types": "./types/cached-fn.d.ts",
+        "default": "./src/cached-fn.js"
+      }
+    }
   },
   "files": [
     "LICENSE",
     "README.md",
-    "src/cached-fn.cjs",
-    "src/cached-fn.js",
-    "types/cached-fn.d.ts"
+    "dist/",
+    "src/",
+    "types/"
   ],
   "homepage": "https://github.com/kawanet/cached-fn",
   "keywords": [
@@ -39,13 +44,15 @@
     "url": "git+https://github.com/kawanet/cached-fn.git"
   },
   "scripts": {
-    "build": "npm run build-mjs && npm run build-cjs",
-    "build-cjs": "perl -pe 's/^export const ([^=]+)/const $1 = exports.$1/' < src/cached-fn.js > src/cached-fn.cjs",
+    "build": "npm run build-mjs && npm run build-cjs && npm run build-minjs",
+    "build-cjs": "perl -pe 's/^export (const +([^= ]+))/$1 = exports.$2/' < src/cached-fn.js > dist/cached-fn.js",
+    "build-minjs": "(echo 'var cachedFn = (function(exports){'; cat dist/cached-fn.js; echo 'return cachedFn})(\"undefined\" !== typeof exports ? exports :{})') | ./node_modules/.bin/terser -c -m -o dist/cached-fn.min.js",
     "build-mjs": "./node_modules/.bin/tsc -p tsconfig.json",
     "fixpack": "fixpack",
-    "prepack": "npm run build && npm run test",
-    "test": "npm run test-mjs && npm run test-cjs",
-    "test-cjs": "node -e 'if (require(\"./src/cached-fn.cjs\").cachedFn(()=>1)() !== 1) throw new Error()'",
+    "prepare": "npm run build && npm run test",
+    "test": "npm run test-mjs && npm run test-cjs && npm run test-minjs",
+    "test-cjs": "node -e 'if (require(\"./dist/cached-fn.js\").cachedFn(()=>1)() !== 1) throw new Error()'",
+    "test-minjs": "node -e 'if (require(\"./dist/cached-fn.min.js\").cachedFn(()=>1)() !== 1) throw new Error()'",
     "test-mjs": "node --test test/*.test.js"
   },
   "type": "module",

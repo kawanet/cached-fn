@@ -9,18 +9,12 @@ export interface cachedFn {
      * - Ideal for expensive or resource-intensive synchronous functions.
      * - Lazy: computes and caches the result on the first invocation.
      * - To invalidate all stored results, call `cachedFn.flush()`.
-     */
-    <T, U extends unknown[]>(fn: (...args: U) => T): ((...args: U) => T);
+     */<T, U extends unknown[]>(fn: (...args: U) => T, options?: CachedFnOptions): ((...args: U) => T);
 
     /**
-     * `cachedFn.cycle(ms, fn)` returns a time-windowed cached version of `fn`.
-     *
-     * - `ms` defines the length of each cache window in milliseconds.
-     * - Results are cached only within the current window slot.
-     * - When a new window starts, the cache is invalidated automatically.
+     * @deprecated
      */
     cycle<T, U extends unknown[]>(ms: number, fn: (...args: U) => T): ((...args: U) => T);
-
 
     /**
      * `cachedFn.flush()` clears all caches created by both `cachedFn()` and `cachedFn.cycle()`.
@@ -32,6 +26,27 @@ export interface cachedFn {
      * process.on("SIGHUP", () => cachedFn.flush());
      */
     flush(): void;
+}
+
+interface CachedFnOptions {
+    /**
+     * Cache duration in milliseconds when resolved.
+     * -1: no expiration. 0: do not cache.
+     */
+    cache?: number
+
+    /**
+     * Cache duration in milliseconds when rejected.
+     * -1: no expiration. 0: do not cache.
+     */
+    negativeCache?: number
+
+    /**
+     * Time-window size in milliseconds for cache grouping.
+     * All caches in the same window are cleared together at window end.
+     * This is a fixed time slot, not a duration from completion.
+     */
+    cycle?: number
 }
 
 export const cachedFn: cachedFn;

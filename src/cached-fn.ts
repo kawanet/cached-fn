@@ -3,9 +3,9 @@
  */
 import type * as declared from "../types/cached-fn.js";
 
-type O = [unknown, number?] // result and expiration
-type P = Record<string, O>  // arguments key
-type Q = Record<number, P>  // counter
+type N = [unknown, number?] // result and expiration
+type O = Record<string, N>  // arguments key
+type Q = Record<number, O>  // counter
 type R = Record<number, Q>  // cycle start msec
 type S = Record<number, R>  // cycle size msec
 
@@ -58,7 +58,7 @@ const factory = ((fn, options) => {
             R = S[cycle] = {}
             Q = R[slot] = {}
         }
-        const P = Q[idx] || (Q[idx] = {});
+        const O = Q[idx] || (Q[idx] = {});
 
         const argLen = args.length
         let key: string;
@@ -70,7 +70,7 @@ const factory = ((fn, options) => {
             key = JSON.stringify(array)
         }
 
-        const cached = P[key] as [T, number]
+        const cached = O[key] as [T, number]
         if (cached) {
             const expires = cached[1]
             if (expires < 0 || Date.now() < expires) {
@@ -78,7 +78,7 @@ const factory = ((fn, options) => {
             }
         }
 
-        const packed = P[key] = [fn.apply(this, args) as T, -1]
+        const packed = O[key] = [fn.apply(this, args) as T, -1]
         const result = packed[0]
 
         if (isPromise(result)) {
@@ -100,7 +100,7 @@ const factory = ((fn, options) => {
 
             // remove from cache when cache disabled
             if (!expiry) {
-                delete P[key]
+                delete O[key]
             }
         }
     };

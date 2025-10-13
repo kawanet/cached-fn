@@ -1,6 +1,6 @@
+import {cachedFn} from "cached-fn"
 import {strict as assert} from "node:assert"
 import {it} from "node:test"
-import {cachedFn} from "../src/cached-fn.js"
 
 const WAIT = (ms: number) => new Promise(resolve => setTimeout(() => resolve(ms), ms));
 const FAIL = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(ms), ms));
@@ -88,7 +88,7 @@ const FAIL = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(
 
 {
     const opt = {cache: -1, negativeCache: -1};
-    it.only(JSON.stringify(opt), {timeout: 1000}, async () => {
+    it(JSON.stringify(opt), {timeout: 1000}, async () => {
         let okCount = 0;
         const okFn = (inc: number): Promise<number> => new Promise(resolve => resolve(okCount += inc))
         const OK = cachedFn(okFn, opt);
@@ -97,13 +97,13 @@ const FAIL = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(
         const ngFn = (inc: number): Promise<number> => new Promise((_, reject) => reject(ngCount += inc))
         const NG = cachedFn(ngFn, opt);
 
-       assert.equal(await OK(100).then(e => e + 1), 101);
-//        assert.equal(await OK(100).then(e => e + 2), 102);
-//        cachedFn.flush();
+        assert.equal(await OK(100).then(e => e + 1), 101);
+        assert.equal(await OK(100).then(e => e + 2), 102);
+        cachedFn.flush();
 
-//        assert.equal(await OK(100).then(e => e + 3), 203);
- //       assert.equal(await OK(100).then(e => e + 4), 204);
-//        cachedFn.flush();
+        assert.equal(await OK(100).then(e => e + 3), 203);
+        assert.equal(await OK(100).then(e => e + 4), 204);
+        cachedFn.flush();
 
         assert.equal(await NG(200).catch(e => e + 5), 205);
         assert.equal(await NG(200).catch(e => e + 6), 206);

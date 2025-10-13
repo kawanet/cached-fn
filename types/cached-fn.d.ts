@@ -1,5 +1,5 @@
 /**
- * cachedFn - Lightweight, lazy, cached function that runs only once when needed
+ * cachedFn - Lightweight and lazy cached function with TTL, negative TTL, and item limit controls.
  */
 export interface cachedFn {
     /**

@@ -1,5 +1,5 @@
 /**
- * cachedFn - Lightweight, lazy, cached function that runs only once when needed
+ * cachedFn - Lightweight and lazy cached function with TTL, negative TTL, and item limit controls.
  */
 import type * as declared from "../types/cached-fn.js";
 

@@ -9,7 +9,9 @@ export interface cachedFn {
      * - Ideal for expensive or resource-intensive synchronous functions.
      * - Lazy: computes and caches the result on the first invocation.
      * - To invalidate all stored results, call `cachedFn.flush()`.
-     */<T, U extends unknown[]>(fn: (...args: U) => T, options?: CachedFnOptions): ((...args: U) => T);
+     */<T, U extends unknown[]>(fn: (...args: U) => T): ((...args: U) => T);
+
+    <T, U extends unknown[]>(options: CachedFnOptions, fn: (...args: U) => T): ((...args: U) => T);
 
     /**
      * @deprecated

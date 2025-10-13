@@ -9,7 +9,7 @@ const FAIL = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(
     const opt = {cache: 150};
 
     it(JSON.stringify(opt), {timeout: 1000}, async () => {
-        const wait = cachedFn(WAIT, opt);
+        const wait = cachedFn(opt, WAIT);
         const timer = createTimer(100);
 
         // execute first time
@@ -38,7 +38,7 @@ const FAIL = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(
 
         let count = 0;
         const fn = (ms: number) => new Promise(resolve => setTimeout(() => resolve(count += ms), ms))
-        const COUNT = cachedFn(fn, opt);
+        const COUNT = cachedFn(opt, fn);
 
         await Promise.all([
             COUNT(100),
@@ -56,7 +56,7 @@ const FAIL = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(
     const opt = {cache: 250};
 
     it(JSON.stringify(opt), {timeout: 1000}, async () => {
-        const fail = cachedFn(FAIL, opt);
+        const fail = cachedFn(opt, FAIL);
         const timer = createTimer(100);
 
         // fail
@@ -73,7 +73,7 @@ const FAIL = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(
     const opt = {cache: 100, negativeCache: 150};
 
     it(JSON.stringify(opt), {timeout: 1000}, async () => {
-        const fail = cachedFn(FAIL, opt);
+        const fail = cachedFn(opt, FAIL);
         const timer = createTimer(100);
 
         // fail
@@ -91,11 +91,11 @@ const FAIL = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(
     it(JSON.stringify(opt), {timeout: 1000}, async () => {
         let okCount = 0;
         const okFn = (inc: number): Promise<number> => new Promise(resolve => resolve(okCount += inc))
-        const OK = cachedFn(okFn, opt);
+        const OK = cachedFn(opt, okFn);
 
         let ngCount = 0;
         const ngFn = (inc: number): Promise<number> => new Promise((_, reject) => reject(ngCount += inc))
-        const NG = cachedFn(ngFn, opt);
+        const NG = cachedFn(opt, ngFn);
 
         assert.equal(await OK(100).then(e => e + 1), 101);
         assert.equal(await OK(100).then(e => e + 2), 102);
@@ -117,10 +117,10 @@ const FAIL = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(
 {
     it("cache separation", {timeout: 1000}, async () => {
         const q1Fn = async (v: number) => "Q1:" + v
-        const Q1 = cachedFn(q1Fn, {cache: -1});
+        const Q1 = cachedFn({cache: -1}, q1Fn);
 
         const q2Fn = async (v: number) => "Q2:" + v
-        const Q2 = cachedFn(q2Fn, {cache: -1});
+        const Q2 = cachedFn({cache: -1}, q2Fn);
 
         assert.equal(await Q1(100), "Q1:100");
         assert.equal(await Q2(200), "Q2:200");

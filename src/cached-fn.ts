@@ -21,7 +21,7 @@ let Index = 0;
 // Array.prototype.slice
 const slice = [].slice;
 
-const factory = ((fn, options) => {
+const factory = ((options, fn) => {
     const idx = ++Index;
     const fnLen = fn.length;
 
@@ -135,10 +135,17 @@ const factory = ((fn, options) => {
 }) as declared.cachedFn
 
 // cachedFn(fn)
-export const cachedFn = ((fn, options) => factory(fn, options || {})) as declared.cachedFn;
+// cachedFn(options, fn)
+export const cachedFn = ((options, fn) => {
+    if ("function" === typeof options && !fn) {
+        fn = options
+        options = {}
+    }
+    return factory(options, fn)
+}) as declared.cachedFn;
 
 // cachedFn.cycle(ms, fn)
-cachedFn.cycle = (ms, fn) => factory(fn, {cycle: ms})
+cachedFn.cycle = (ms, fn) => factory({cycle: ms}, fn)
 
 // cachedFn.flush()
 cachedFn.flush = () => (S = {});

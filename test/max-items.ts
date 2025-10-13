@@ -7,7 +7,7 @@ const WAIT = (ms: number) => new Promise(resolve => setTimeout(() => resolve(ms)
 it("maxItems", async () => {
     let counter = 0;
     const fn = (key: string): string => `${key}:${++counter}`
-    const COUNT = cachedFn(fn, {maxItems: 5});
+    const COUNT = cachedFn({maxItems: 5}, fn);
 
     assert.equal(COUNT("foo"), "foo:1");
     assert.equal(COUNT("bar"), "bar:2");

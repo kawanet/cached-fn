@@ -32,12 +32,14 @@ interface CachedFnOptions {
     /**
      * Cache duration in milliseconds when resolved.
      * -1: no expiration. 0: do not cache.
+     * @default -1
      */
     cache?: number
 
     /**
      * Cache duration in milliseconds when rejected.
      * -1: no expiration. 0: do not cache.
+     * @default 0
      */
     negativeCache?: number
 
@@ -47,6 +49,12 @@ interface CachedFnOptions {
      * This is a fixed time slot, not a duration from completion.
      */
     cycle?: number
+
+    /**
+     * Maximum number of items in the cache.
+     * @default 0 - unlimited.
+     */
+    maxItems?: number
 }
 
 export const cachedFn: cachedFn;

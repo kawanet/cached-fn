@@ -3,11 +3,12 @@
  */
 import type * as declared from "../types/cached-fn.js";
 
-type N = [unknown, number?] // result and expiration
-type O = Record<string, N>  // arguments key
-type Q = Record<number, O>  // counter
-type R = Record<number, Q>  // cycle start msec
-type S = Record<number, R>  // cycle size msec
+type N = [unknown, number?] // Cached result and expiration timestamp
+type O = Record<string, N>  // Maps argument key to cached result
+type P = O[]                // Array of cache entry objects (with maxItems limit)
+type Q = Record<number, P>  // Maps index to cache entries
+type R = Record<number, Q>  // Maps cycle start timestamp to caches
+type S = Record<number, R>  // Maps cycle size (ms) to all caches in that window
 
 const isPromise = <T>(value: any): value is Promise<T> => (value && "function" === typeof value.then)
 
@@ -44,8 +45,13 @@ const factory = ((fn, options) => {
      * -1: no expiration. 0: do not cache.
      * @default 0
      */
-    let negativeCache = options.negativeCache
-    if (negativeCache !== 0) negativeCache = +negativeCache || 0
+    const negativeCache = +options.negativeCache || 0
+
+    /**
+     * Maximum number of items in the cache.
+     * @default 0 - unlimited.
+     */
+    const maxItems = +options.maxItems || 0
 
     return function <T>(this: unknown): T {
         // eslint-disable-next-line prefer-rest-params
@@ -58,7 +64,8 @@ const factory = ((fn, options) => {
             R = S[cycle] = {}
             Q = R[slot] = {}
         }
-        const O = Q[idx] || (Q[idx] = {});
+
+        const P = Q[idx] || (Q[idx] = []);
 
         const argLen = args.length
         let key: string;
@@ -70,6 +77,9 @@ const factory = ((fn, options) => {
             key = JSON.stringify(array)
         }
 
+        const O = maxItems ? (P.find(p => p[key]) || (P[P.length] = {})) : (P[0] || (P[0] = {}))
+
+        // cached result
         const cached = O[key] as [T, number]
         if (cached) {
             const expires = cached[1]
@@ -78,7 +88,25 @@ const factory = ((fn, options) => {
             }
         }
 
-        const packed = O[key] = [fn.apply(this, args) as T, -1]
+        // new result
+        const packed = O[key] = [fn.apply(this, args) as T, -1] as [T, number]
+
+        if (maxItems) {
+            // remove the previous item from list
+            const position = P.findIndex(p => p === O);
+            if (position !== -1) {
+                P.splice(position, 1);
+            }
+
+            // add the new item to the end of list
+            P.push(O)
+
+            // remove the oldest item when the cache exceeds maxItems
+            if (P.length > maxItems) {
+                P.shift();
+            }
+        }
+
         const result = packed[0]
 
         if (isPromise(result)) {

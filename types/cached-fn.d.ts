@@ -1,6 +1,9 @@
 /**
  * cachedFn - Lightweight and lazy cached function with TTL, negative TTL, and item limit controls.
  */
+
+export {} // external module indicator
+
 export interface cachedFn {
     /**
      * `cachedFn(fn)` returns a memoized version of `fn` with unlimited cache duration.
@@ -30,7 +33,7 @@ export interface cachedFn {
     flush(): void;
 }
 
-interface CachedFnOptions {
+export interface CachedFnOptions {
     /**
      * Cache duration in milliseconds when resolved.
      * -1: no expiration. 0: do not cache.

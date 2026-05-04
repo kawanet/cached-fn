@@ -6,6 +6,7 @@ SRC   := $(wildcard ../src/*.ts)
 TYPES := $(wildcard ../types/*.d.ts)
 BUILDER_SRC := $(wildcard ./*.ts)
 TEST_SRC := $(wildcard ../test/*.ts)
+BROWSER_SRC := $(wildcard ../browser/*.js)
 
 MJS_DST   := ../dist/cached-fn.mjs
 CJS_DST   := ../dist/cached-fn.cjs
@@ -71,12 +72,15 @@ $(MINJS_DST): $(MINJS_CONFIG) $(SRC) $(BUILDER_SRC) $(PKG_DST)
 	@test "$$(wc -c < $@)" -le $(MAX_BYTES) || { echo "ERROR: $@ exceeds $(MAX_BYTES) byte cap" >&2; exit 1; }
 	@echo ""
 
-# Browser test bundle. Inlines the test sources, the cached-fn source
-# they import, and the small node:test / node:assert shims (aliased
-# in via rollup-test.config.ts). Loaded by `test/test.html` so the
-# same node:test sources can run unchanged in a browser without
-# mocha or chai.
-$(TEST_DST): $(TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC)
+# Browser test bundle. Inlines the test sources and the small shims
+# (node:test / node:assert), all aliased in via rollup-test.config.ts.
+# The package itself is *not* inlined — `cached-fn` resolves to
+# `browser/import.js`, a 2-line CJS bridge that re-exports the IIFE
+# global set by `dist/cached-fn.min.js` at runtime. Loaded by
+# `test/test.html`, which side-loads `dist/cached-fn.min.js` first.
+# Hence the dependency on $(MINJS_DST): without it, opening the test
+# page after a clean of just the test bundle would 404 on min.js.
+$(TEST_DST): $(TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(BROWSER_SRC) $(MINJS_DST)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
 	@ls -l $@

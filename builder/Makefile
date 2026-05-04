@@ -28,9 +28,12 @@ NAMED_EXPORTS := cachedFn
 # slip in.
 MAX_BYTES := 5000
 
-# The browser test bundle inlines the test sources, the cached-fn source,
-# and the small node:test / node:assert shims. ~10 KB today, capped well
-# above for headroom as more tests are added.
+# The browser test bundle inlines the test sources and the small
+# node:test / node:assert shims. The cached-fn source itself is
+# externalized through `browser/import.js` and supplied at runtime by
+# `dist/cached-fn.min.js` (loaded ahead of the bundle by test.html),
+# so this cap covers test code + shim wiring only. ~18 KB today,
+# capped well above for headroom as more tests are added.
 TEST_MAX_BYTES := 100000
 
 ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(PKG_DST) $(TEST_DST)

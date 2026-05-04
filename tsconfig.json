@@ -1,24 +1,29 @@
 {
-  "exclude": [
-    "node_modules"
-  ],
   "include": [
+    "builder/",
     "src/",
     "test/",
     "types/"
   ],
+  "exclude": [
+    "node_modules/"
+  ],
   "compilerOptions": {
-    "allowSyntheticDefaultImports": false,
-    "module": "Preserve",
-    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
     "noImplicitAny": true,
     "noImplicitReturns": false,
     "noImplicitThis": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false,
     "removeComments": false,
-    "skipLibCheck": false,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
     "strictNullChecks": false,
-    "target": "ES2018"
+    "target": "ES2022"
   }
 }

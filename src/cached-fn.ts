@@ -1,7 +1,12 @@
 /**
  * cachedFn - Lightweight and lazy cached function with TTL, negative TTL, and item limit controls.
  */
-import type * as declared from "../types/cached-fn.js";
+
+// Self-reference via the package name so `tsc --noEmit` resolves these
+// types through `package.json` `exports` — the same path an external
+// consumer would take. If the `exports.types` mapping ever breaks, the
+// build fails here.
+import type * as declared from "cached-fn";
 
 type N = [unknown, number?] // Cached result and expiration timestamp
 type O = Record<string, N>  // Maps argument key to cached result

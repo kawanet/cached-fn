@@ -10,25 +10,40 @@
     "kawanet <u-suke@kawa.net>"
   ],
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.2",
+    "@rollup/plugin-sucrase": "^5.0.2",
+    "@rollup/plugin-terser": "^1.0.0",
     "@types/node": "^24.7.2",
+    "rollup": "^4.52.4",
     "terser": "^5.44.0",
     "typescript": "^5.9.3"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=22",
+      "onFail": "warn"
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "exports": {
     ".": {
-      "require": "./dist/cached-fn.js",
-      "import": {
-        "types": "./types/cached-fn.d.ts",
-        "default": "./src/cached-fn.js"
-      }
+      "types": "./types/cached-fn.d.ts",
+      "require": "./dist/cached-fn.cjs",
+      "import": "./dist/cached-fn.mjs"
     }
   },
   "files": [
     "LICENSE",
     "README.md",
-    "dist/",
-    "src/",
-    "types/"
+    "dist/cached-fn.cjs",
+    "dist/cached-fn.min.js",
+    "dist/cached-fn.mjs",
+    "dist/package.json",
+    "src/*.ts",
+    "types/*.d.ts"
   ],
   "homepage": "https://github.com/kawanet/cached-fn",
   "keywords": [
@@ -38,23 +53,19 @@
     "memoize"
   ],
   "license": "MIT",
-  "main": "./src/cached-fn.js",
+  "main": "./dist/cached-fn.cjs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kawanet/cached-fn.git"
   },
   "scripts": {
-    "build": "npm run build-mjs && npm run build-cjs && npm run build-minjs",
-    "build-cjs": "perl -pe 's/^export (const +([^= ]+))/$1 = exports.$2/' < src/cached-fn.js > dist/cached-fn.js",
-    "build-minjs": "(echo 'var cachedFn = (function(exports){'; cat dist/cached-fn.js; echo 'return cachedFn})(\"undefined\" !== typeof exports ? exports :{})') | ./node_modules/.bin/terser -c -m -o dist/cached-fn.min.js",
-    "build-mjs": "./node_modules/.bin/tsc -p tsconfig.json",
+    "build": "make -C builder",
     "fixpack": "fixpack",
-    "prepare": "npm run build && npm run test",
-    "test": "npm run test-mjs && npm run test-cjs && npm run test-minjs",
-    "test-cjs": "node -e 'if (require(\"./dist/cached-fn.js\").cachedFn(()=>1)() !== 1) throw new Error()'",
-    "test-minjs": "node -e 'if (require(\"./dist/cached-fn.min.js\").cachedFn(()=>1)() !== 1) throw new Error()'",
-    "test-mjs": "node --test test/*.test.js"
+    "prepack": "if node -v | grep -q '^v20'; then echo 'ERROR: packing is not allowed on Node 20'; exit 1; fi",
+    "prepare": "if node -v | grep -q '^v20'; then :; else make -C builder clean all test; fi",
+    "test": "make -C builder test"
   },
+  "sideEffects": false,
   "type": "module",
   "types": "./types/cached-fn.d.ts"
 }

@@ -1,5 +1,7 @@
 *.cjs
 *.js
+*.min.js
+*.mjs
 *.tgz
 *~
 .DS_Store
@@ -7,6 +9,8 @@
 ._*
 .idea/
 .vscode/
+build/
+dist/
 node_modules/
 npm-debug.log*
 package-lock.json

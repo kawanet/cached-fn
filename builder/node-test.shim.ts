@@ -22,10 +22,16 @@ const root = (): HTMLElement => {
     return el;
 };
 
-const append = (text: string, color: string): void => {
+const append = (text: string, color: string, suffix?: string): void => {
     const li = document.createElement("li");
     li.textContent = text;
     li.style.color = color;
+    if (suffix) {
+        const span = document.createElement("span");
+        span.textContent = " " + suffix;
+        span.style.color = "gray";
+        li.appendChild(span);
+    }
     root().appendChild(li);
 };
 
@@ -54,12 +60,13 @@ export const it = (name: string, ...rest: [Body] | [Options, Body]): void => {
     const fn = rest[rest.length - 1] as Body;
     const label = [...stack, name].join(" › ");
     queue = queue.then(async () => {
+        const start = performance.now();
         try {
             await fn();
-            append("✔ " + label, "green");
+            append("✔ " + label, "green", `(${Math.round(performance.now() - start)}ms)`);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
-            append("✘ " + label + ": " + msg, "red");
+            append("✘ " + label + ": " + msg, "red", `(${Math.round(performance.now() - start)}ms)`);
         }
         // append("⚠ " + label + ": " + reason, "darkorange"); // verdict 不明時の表示形 (skip / todo / timeout など将来の再利用候補)
     });

@@ -1,8 +1,8 @@
 import {cachedFn} from "cached-fn"
 import {strict as assert} from "node:assert"
-import {test} from "node:test"
+import {it} from "node:test"
 
-test("cached-fn", async () => {
+it("cached-fn", async () => {
     let count = 0
     const counter = cachedFn(() => ++count)
     assert.equal(counter(), 1)

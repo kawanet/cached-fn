@@ -2,6 +2,7 @@
 *.js
 *.min.js
 *.mjs
+!browser/import.js
 *.tgz
 *~
 .DS_Store

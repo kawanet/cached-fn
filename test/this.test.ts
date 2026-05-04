@@ -1,8 +1,8 @@
 import {cachedFn} from "cached-fn"
 import {strict as assert} from "node:assert"
-import {test} from "node:test"
+import {it} from "node:test"
 
-test("this", async () => {
+it("this", async () => {
     class MyClass {
         a = 0
         b = 0;

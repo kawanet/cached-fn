@@ -1,8 +1,8 @@
 import {cachedFn} from "cached-fn"
 import {strict as assert} from "node:assert"
-import {test} from "node:test"
+import {it} from "node:test"
 
-test("cachedFn.cycle()", async () => {
+it("cachedFn.cycle()", async () => {
     let count = 0
 
     const counter = cachedFn.cycle(20, (_: string) => ++count)

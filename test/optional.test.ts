@@ -1,8 +1,8 @@
 import {cachedFn} from "cached-fn"
 import {strict as assert} from "node:assert"
-import {test} from "node:test"
+import {it} from "node:test"
 
-test("single argument", async () => {
+it("single argument", async () => {
     let count = 0
     const fn = cachedFn((_a?: string) => ++count)
     assert.equal(fn(), 1)
@@ -19,7 +19,7 @@ test("single argument", async () => {
     assert.equal(fn(undefined), 1)
 })
 
-test("two arguments", async () => {
+it("two arguments", async () => {
     let count = 0
     const fn = cachedFn((_a?: string, _b?: string) => ++count)
     assert.equal(fn(), 1)
@@ -37,7 +37,7 @@ test("two arguments", async () => {
     assert.equal(fn(undefined, undefined), 1)
 })
 
-test("three arguments", async () => {
+it("three arguments", async () => {
     let count = 0
     const fn = cachedFn((_a?: string, _b?: string, _c?: string) => ++count)
     assert.equal(fn(), 1)

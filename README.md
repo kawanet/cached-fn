@@ -1,6 +1,6 @@
 # cached-fn
 
-[![Node.js CI](https://github.com/kawanet/cached-fn/workflows/Node.js%20CI/badge.svg)](https://github.com/kawanet/cached-fn/actions/)
+[![Node.js CI](https://github.com/kawanet/cached-fn/actions/workflows/nodejs.yml/badge.svg?branch=main)](https://github.com/kawanet/cached-fn/actions/)
 [![npm version](https://img.shields.io/npm/v/cached-fn)](https://www.npmjs.com/package/cached-fn)
 [![gzip size](https://img.badgesize.io/https://cdn.jsdelivr.net/npm/cached-fn/dist/cached-fn.min.js?compression=gzip)](https://cdn.jsdelivr.net/npm/cached-fn/dist/cached-fn.min.js)
 

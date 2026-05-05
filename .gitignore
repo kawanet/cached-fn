@@ -1,8 +1,6 @@
 *.cjs
-*.js
 *.min.js
 *.mjs
-!browser/import.js
 *.tgz
 *~
 .DS_Store
@@ -10,9 +8,11 @@
 ._*
 .idea/
 .vscode/
+browser/test/*.js
 build/
 dist/
 node_modules/
 npm-debug.log*
 package-lock.json
+test/**/*.js
 ~$*

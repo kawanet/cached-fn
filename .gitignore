@@ -1,6 +1,5 @@
 *.cjs
 *.js
-*.min.js
 *.mjs
 !browser/import.js
 *.tgz

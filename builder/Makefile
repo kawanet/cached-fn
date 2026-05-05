@@ -12,7 +12,7 @@ MJS_DST   := ../dist/cached-fn.mjs
 CJS_DST   := ../dist/cached-fn.cjs
 MINJS_DST := ../dist/cached-fn.min.js
 PKG_DST   := ../dist/package.json
-TEST_DST  := ../browser/run-tests.js
+TEST_DST  := ../browser/tests/bundled.js
 
 MJS_CONFIG   := ./rollup-mjs.config.ts
 CJS_CONFIG   := ./rollup-cjs.config.ts
@@ -31,7 +31,7 @@ MAX_BYTES := 5000
 # The browser test bundle inlines the test sources and the small
 # node:test / node:assert shims. The cached-fn source itself is
 # externalized through `browser/import.js` and supplied at runtime by
-# `dist/cached-fn.min.js` (loaded ahead of the bundle by browser/run-tests.html),
+# `dist/cached-fn.min.js` (loaded ahead of the bundle by browser/tests.html),
 # so this cap covers test code + shim wiring only. ~18 KB today,
 # capped well above for headroom as more tests are added.
 TEST_MAX_BYTES := 100000
@@ -80,7 +80,7 @@ $(MINJS_DST): $(MINJS_CONFIG) $(SRC) $(BUILDER_SRC) $(PKG_DST)
 # The package itself is *not* inlined — `cached-fn` resolves to
 # `browser/import.js`, a 2-line CJS bridge that re-exports the IIFE
 # global set by `dist/cached-fn.min.js` at runtime. Loaded by
-# `browser/run-tests.html`, which side-loads `dist/cached-fn.min.js` first.
+# `browser/tests.html`, which side-loads `dist/cached-fn.min.js` first.
 # Hence the dependency on $(MINJS_DST): without it, opening the test
 # page after a clean of just the test bundle would 404 on min.js.
 $(TEST_DST): $(TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(BROWSER_SRC) $(MINJS_DST)

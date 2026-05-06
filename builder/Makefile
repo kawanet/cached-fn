@@ -38,9 +38,24 @@ TEST_MAX_BYTES := 100000
 
 ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(PKG_DST) $(TEST_DST)
 
+# Build/test paths require Node's native TypeScript type-strip (default on
+# Node 22.18+). Older runtimes (e.g. Node 20) report BUILDABLE=NO and can
+# still verify pre-built bundles via `make smoke`.
+BUILDABLE := $(shell node -e 'console.log(process.features.typescript ? "YES" : "NO")')
+
 ####
 
-all: $(ALL)
+all: is-buildable $(ALL)
+
+# Gate that fails loudly when type-strip is unavailable; consumed by `all`
+# and by `npm prepack` to refuse packaging on a non-buildable runtime.
+is-buildable:
+	@ [ "$(BUILDABLE)" = "YES" ]
+
+# Inverse gate used by `npm prepare` to short-circuit on a non-buildable
+# runtime so consumer install on Node 20 silently skips build/test.
+is-not-buildable:
+	@ [ "$(BUILDABLE)" = "NO" ]
 
 # dist/package.json marks the dist/ scope as CommonJS so that
 # `dist/cached-fn.min.js` (which is a CJS-compatible IIFE bundle, see
@@ -129,10 +144,10 @@ smoke-minjs: $(MINJS_DST) $(PKG_DST)
 ####
 
 # Build, run smoke tests, and conditionally run full tests (tsc and node:test).
+# Consumer `npm install` skips the heavy test-ts step to keep install fast.
 test: all smoke $(TYPES)
-	@node -v | grep -qv "^v20" || echo "Node 20 detected: skipping full tests."
 	@ [ "$$npm_command" != "install" ] || echo "npm install detected: skipping full tests."
-	@node -v | grep -q "^v20" || [ "$$npm_command" = "install" ] || $(MAKE) test-ts
+	@ [ "$$npm_command" = "install" ] || $(MAKE) test-ts
 
 test-ts:
 	../node_modules/.bin/tsc --noEmit
@@ -143,4 +158,4 @@ test-ts:
 clean:
 	/bin/rm -fr $(ALL)
 
-.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-ts
+.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-ts is-buildable is-not-buildable

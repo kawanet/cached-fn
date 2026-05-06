@@ -57,7 +57,11 @@ const ANSI_RESET = "\x1b[0m";
 const ANSI_DIM = "\x1b[2m";
 
 const append = (text: string, color: string, suffix?: string): void => {
-    if (typeof document !== "undefined") {
+    // `window` (not `document`) so a `before()` hook that wires up
+    // jsdom — `globalThis.document = new JSDOM().window.document`
+    // — does not flip env mid-run; jsdom does not also assign
+    // `globalThis.window`, so this stays false on Node throughout.
+    if (typeof window !== "undefined") {
         const li = document.createElement("li");
         li.textContent = text;
         li.style.color = color;
@@ -151,9 +155,12 @@ const runHook = async (label: string, fn: Body): Promise<boolean> => {
 // after-hooks still run so resource-cleanup that does not depend on
 // completed setup is still given a chance.
 //
-// State is reset at end-of-drain so successive `await import()`
-// boundaries (one per file under the Node test-shim path) each get
-// a fresh cycle. Browser bundle drains once, so the reset is a no-op.
+// `tests` and `scheduled` reset at end of drain so each `await import()`
+// boundary in the Node test-shim path triggers its own drain. `befores`
+// / `afters` persist: shared helpers (e.g. a jsdom-helper) get imported
+// once and register hooks once, but every file's drain still needs to
+// re-run that setup/teardown. Browser drains exactly once so trailing
+// state is irrelevant there.
 const run = async (): Promise<void> => {
     let setupFailed = false;
     for (const fn of befores) {
@@ -167,9 +174,7 @@ const run = async (): Promise<void> => {
         }
     }
     for (const fn of afters) await runHook("after()", fn);
-    befores.length = 0;
     tests.length = 0;
-    afters.length = 0;
     scheduled = false;
 };
 

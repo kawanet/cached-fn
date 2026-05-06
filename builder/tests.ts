@@ -11,6 +11,7 @@ import {dirname, resolve as resolvePath} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
+const projectRoot = pathToFileURL(resolvePath(here, "..") + "/").href;
 const ALIAS: Record<string, string> = {
     "node:test": resolvePath(here, "node-test.shim.ts"),
     "node:assert": resolvePath(here, "node-assert.shim.ts"),
@@ -19,7 +20,15 @@ const ALIAS: Record<string, string> = {
 registerHooks({
     resolve(specifier, context, nextResolve) {
         const target = ALIAS[specifier];
-        if (target) return nextResolve(pathToFileURL(target).href, context);
+        const parent = context?.parentURL;
+        // Only intercept imports from project sources. Dependencies
+        // under node_modules (jsdom → undici, etc.) keep resolving
+        // to real node:test / node:assert; without this guard, our
+        // alias would redirect their imports to the .ts shim files
+        // and break their CJS require() chain.
+        if (target && parent && parent.startsWith(projectRoot) && !parent.includes("/node_modules/")) {
+            return nextResolve(pathToFileURL(target).href, context);
+        }
         return nextResolve(specifier, context);
     },
 });

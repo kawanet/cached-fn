@@ -18,16 +18,9 @@ const rollupConfig: RollupOptions = {
     treeshake: false,
 
     plugins: [
-        // Redirect `node:test` / `node:assert` to the browser shims
-        // and `cached-fn` to the published `browser/import.js` (a
-        // 2-line CJS bridge to `globalThis.cachedFn` from the
-        // `dist/cached-fn.min.js` IIFE — see browser/import.js).
-        // The same import statement therefore resolves to:
-        //   - real `node:test` / `node:assert` / `cached-fn` under
-        //     `node --test` (Node + the package's own dist),
-        //   - the local shims / global bridge in the browser bundle,
-        // exercising the published `.min.js` instead of inlining the
-        // source via nodeResolve.
+        // Browser-side replacements: each entry's import resolves to
+        // the real module under `node --test` and to the local file
+        // listed below in the rollup test bundle.
         alias({
             entries: [
                 {find: "node:test", replacement: fileURLToPath(new URL("./node-test.shim.ts", import.meta.url))},
